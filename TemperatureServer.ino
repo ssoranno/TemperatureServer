@@ -60,7 +60,7 @@ unsigned tStart = 0;  // Start and wait variables determine how long a connectio
 unsigned tWait = 5000;  // in this case 5 seconds
 
 TCPServer tcpServer;  // Declare TCPServer object
-#define cTcpClients 2  // Allow 2 tcp clients at a time
+#define cTcpClients 10  // Allow 10 tcp clients at a time
 TCPSocket rgTcpClient[cTcpClients];  // Create a socket for each client
 
 TCPSocket * ptcpClient = NULL;
@@ -72,7 +72,7 @@ int cbRead = 0;
 int count = 0;
 
 // byte Array containing the http responce with the html webpage
-byte webpage[1024] = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<!DOCTYPE html>\r\n<html><head><title>TempServer</title>\r\n<body><center><h1>Temperature: ";
+byte webpage[2048] = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<!DOCTYPE html>\r\n<html><head><style>body{display:table-cell;text-align:center;vertical-align:middle;width:50%;color:white;background-color:black;}</style><title>TempServer</title>\r\n<body><center><h1>Temperature: ";
 int faren = 0;  // Temperature variables
 double celsius = 0;
 
@@ -146,29 +146,15 @@ void loop() {
     char y[1];
     itoa(((faren/10)%10),x,10);
     itoa((faren%10),y,10);
-    webpage[156] = x[0];
-    webpage[157] = y[0];
-    webpage[158] = '<';
-    webpage[159] = '/';
-    webpage[160] = 'h';
-    webpage[161] = '1';
-    webpage[162] = '>';
-    webpage[163] = '<';
-    webpage[164] = '/';
-    webpage[165] = 'b';
-    webpage[166] = 'o';
-    webpage[167] = 'd';
-    webpage[168] = 'y';
-    webpage[169] = '>';
-    webpage[170] = '<';
-    webpage[171] = '/';
-    webpage[172] = 'h';
-    webpage[173] = 't';
-    webpage[174] = 'm';
-    webpage[175] = 'l';
-    webpage[176] = '>';
-    webpage[177] = '\r';
-    webpage[178] = '\n';
+    webpage[284] = x[0];
+    webpage[285] = y[0];
+
+    byte temp[23] = "</h1></body></html>\r\n";
+    int i =0;
+    for(i = 286; i<23; i++){
+        webpage[i] = temp[i-286];
+    }
+    //delay(10);
     
     switch(state)
     {
@@ -241,7 +227,6 @@ void loop() {
     // wait fot the read, but if too much time elapses (5 seconds)
     // we will just close the tcpClient and go back to listening
     case READ:
-
         // see if we got anything to read
         if((cbRead = ptcpClient->available()) > 0)
         {
@@ -254,8 +239,10 @@ void loop() {
             if(rgbRead[0] == 'G'){   // if the server receives a http get request jump to the WRITE STATE  
                 state = WRITE;
             }
+        } else if( (((unsigned) millis()) - tStart) > tWait )
+        {
+            state = CLOSE;
         }
-
         break;
 
     // Send the html webpage back to the client and close the connection.
@@ -268,7 +255,8 @@ void loop() {
                 Serial.print((char) rgbRead[i]);
             }
             Serial.println("");  
-            ptcpClient->writeStream(webpage, 177);
+            ptcpClient->writeStream(webpage, 306);
+            tStart = (unsigned) millis();
             state = CLOSE;
         }
 
