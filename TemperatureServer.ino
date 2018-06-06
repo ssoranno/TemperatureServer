@@ -72,7 +72,7 @@ int cbRead = 0;
 int count = 0;
 
 // byte Array containing the http responce with the html webpage
-byte webpage[2048] = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<!DOCTYPE html>\r\n<html><head><style>body{display:table-cell;text-align:center;vertical-align:middle;width:50%;color:white;background-color:black;}</style><title>TempServer</title>\r\n<body><center><h1>Temperature: ";
+byte webpage[2048] = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<!DOCTYPE html>\r\n<html><head><style>body{display:inline;text-align:center;vertical-align:middle;width:50%;color:white;background-color:blue;}</style><title>TempServer</title>\r\n<body><center><font size=\"10\"><h1>Temperature: ";
 int faren = 0;  // Temperature variables
 double celsius = 0;
 
@@ -94,11 +94,11 @@ double celsius = 0;
  *      
  * ------------------------------------------------------------ */
 void setup() {
-  
+
     Serial.begin(9600);
     Serial.println("TemperatureServer");
     Serial.println("");
-
+    
     // intialize the stack with a static IP
     deIPcK.begin(ipServer);
     // Inialize the temperature sensor by passing the correct pin for input
@@ -146,13 +146,13 @@ void loop() {
     char y[1];
     itoa(((faren/10)%10),x,10);
     itoa((faren%10),y,10);
-    webpage[284] = x[0];
-    webpage[285] = y[0];
+    webpage[293] = x[0];
+    webpage[294] = y[0];
 
-    byte temp[23] = "</h1></body></html>\r\n";
+    byte temp[39] = "</h1></font></body></center></html>\r\n";
     int i =0;
-    for(i = 286; i<23; i++){
-        webpage[i] = temp[i-286];
+    for(i = 295; i<39; i++){
+        webpage[i] = temp[i-295];
     }
     //delay(10);
     
@@ -236,8 +236,17 @@ void loop() {
             Serial.print("Got ");
             Serial.print(cbRead, DEC);
             Serial.println(" bytes");
-            if(rgbRead[0] == 'G'){   // if the server receives a http get request jump to the WRITE STATE  
+
+            for(int i=0; i < cbRead; i++) 
+            {
+                Serial.print((char) rgbRead[i]);
+            }
+            Serial.println("");
+            
+            if(rgbRead[0] == 'G' && rgbRead[4] == '/' && rgbRead[5] == ' '){   // if the server receives a http get request jump to the WRITE STATE  
                 state = WRITE;
+            } else{
+                state = CLOSE;
             }
         } else if( (((unsigned) millis()) - tStart) > tWait )
         {
@@ -249,12 +258,7 @@ void loop() {
     case WRITE:
         if(ptcpClient->isConnected())
         {               
-            Serial.println("Writing: ");  
-            for(int i=0; i < cbRead; i++) 
-            {
-                Serial.print((char) rgbRead[i]);
-            }
-            Serial.println("");  
+            Serial.println("Got Writing");  
             ptcpClient->writeStream(webpage, 306);
             tStart = (unsigned) millis();
             state = CLOSE;
