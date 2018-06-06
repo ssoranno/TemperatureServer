@@ -236,12 +236,6 @@ void loop() {
             Serial.print("Got ");
             Serial.print(cbRead, DEC);
             Serial.println(" bytes");
-
-            for(int i=0; i < cbRead; i++) 
-            {
-                Serial.print((char) rgbRead[i]);
-            }
-            Serial.println("");
             
             if(rgbRead[0] == 'G' && rgbRead[4] == '/' && rgbRead[5] == ' '){   // if the server receives a http get request jump to the WRITE STATE  
                 state = WRITE;
@@ -258,7 +252,12 @@ void loop() {
     case WRITE:
         if(ptcpClient->isConnected())
         {               
-            Serial.println("Got Writing");  
+            Serial.println("Writing:");
+            for(int i=0; i < cbRead; i++) 
+            {
+                Serial.print((char) rgbRead[i]);
+            }
+            Serial.println(""); 
             ptcpClient->writeStream(webpage, 306);
             tStart = (unsigned) millis();
             state = CLOSE;
