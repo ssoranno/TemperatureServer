@@ -24,7 +24,7 @@
 #include <IM8720PHY.h>                      // This is for the the Internal MAC and SMSC 8720 PHY
 #include <DEIPcK.h>                         // TCPIP stack library
 
-IPv4 ipServer = {10,0,0,97};                // static ip
+IPv4 ipServer = {192,168,1,97};                // static ip
 unsigned short portServer = 80;             // Server port  
    
 //****************************************************************************************
