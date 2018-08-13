@@ -14,5 +14,3 @@ Example: http://10.0.0.97
 Digilent MX7 Development Board<br>
 TC1 Sensor<br>
 Seven Segment Display<br>
-## Design Approach
-
