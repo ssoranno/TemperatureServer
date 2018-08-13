@@ -10,6 +10,8 @@ source code as needed.
 The URL for the webpage is set to the ip address of the server.<br>
 Example: http://10.0.0.97
 
+This server can be paired with the Temperature Monitor Application to constantly send temperature data to an device iOS device.
+
 ## Materials Required
 Digilent MX7 Development Board<br>
 TC1 Sensor<br>
